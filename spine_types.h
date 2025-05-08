@@ -6,6 +6,33 @@
 #include <vector>
 #include <map>
 #include <optional>
+
+namespace ArduinoJson {
+template <typename T>
+struct Converter<std::vector<T> > {
+  static void toJson(const std::vector<T>& src, JsonVariant dst) {
+    JsonArray array = dst.to<JsonArray>();
+    for (T item : src)
+      array.add(item);
+  }
+
+  static std::vector<T> fromJson(JsonVariantConst src) {
+    std::vector<T> dst;
+    for (T item : src.as<JsonArrayConst>())
+      dst.push_back(item);
+    return dst;
+  }
+
+  static bool checkJson(JsonVariantConst src) {
+    JsonArrayConst array = src;
+    bool result = array;
+    for (JsonVariantConst item : array)
+      result &= item.is<T>();
+    return result;
+  }
+};
+}  // namespace ArduinoJson
+
 using MessagingNumberType = int;
 using MessagingDataTextType = std::string;
 using LabelType = std::string;
@@ -94,6 +121,9 @@ enum class MessagingTypeEnumType {
 	emergency,
 	obsolete,
 };
+bool convertToJson(const MessagingTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MessagingTypeEnumType &dst);
+
 enum class RecurringIntervalEnumType {
 	yearly,
 	monthly,
@@ -103,6 +133,9 @@ enum class RecurringIntervalEnumType {
 	everyMinute,
 	everySecond,
 };
+bool convertToJson(const RecurringIntervalEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, RecurringIntervalEnumType &dst);
+
 enum class MonthType {
 	january,
 	february,
@@ -117,6 +150,9 @@ enum class MonthType {
 	november,
 	december,
 };
+bool convertToJson(const MonthType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MonthType &dst);
+
 enum class DayOfWeekType {
 	monday,
 	tuesday,
@@ -126,6 +162,9 @@ enum class DayOfWeekType {
 	saturday,
 	sunday,
 };
+bool convertToJson(const DayOfWeekType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DayOfWeekType &dst);
+
 enum class OccurrenceEnumType {
 	first,
 	second,
@@ -133,6 +172,9 @@ enum class OccurrenceEnumType {
 	fourth,
 	last,
 };
+bool convertToJson(const OccurrenceEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, OccurrenceEnumType &dst);
+
 enum class CommodityTypeEnumType {
 	electricity,
 	gas,
@@ -146,16 +188,25 @@ enum class CommodityTypeEnumType {
 	coolingLoad,
 	air,
 };
+bool convertToJson(const CommodityTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, CommodityTypeEnumType &dst);
+
 enum class EnergyDirectionEnumType {
 	consume,
 	produce,
 };
+bool convertToJson(const EnergyDirectionEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, EnergyDirectionEnumType &dst);
+
 enum class EnergyModeEnumType {
 	consume,
 	produce,
 	idle,
 	auto,
 };
+bool convertToJson(const EnergyModeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, EnergyModeEnumType &dst);
+
 enum class UnitOfMeasurementEnumType {
 	unknown,
 	var_1,
@@ -252,6 +303,9 @@ enum class UnitOfMeasurementEnumType {
 	Ah,
 	kg_Wh,
 };
+bool convertToJson(const UnitOfMeasurementEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, UnitOfMeasurementEnumType &dst);
+
 enum class CurrencyEnumType {
 	AED,
 	AFN,
@@ -432,6 +486,9 @@ enum class CurrencyEnumType {
 	ZMW,
 	ZWL,
 };
+bool convertToJson(const CurrencyEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, CurrencyEnumType &dst);
+
 enum class ScopeTypeEnumType {
 	ac,
 	acCosPhiGrid,
@@ -520,11 +577,17 @@ enum class ScopeTypeEnumType {
 	incentiveTableEnProdWithTF,
 	activePowerForecast,
 };
+bool convertToJson(const ScopeTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ScopeTypeEnumType &dst);
+
 enum class RoleType {
 	client,
 	server,
 	special,
 };
+bool convertToJson(const RoleType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, RoleType &dst);
+
 enum class DeviceTypeEnumType {
 	Dishwasher,
 	Dryer,
@@ -541,6 +604,9 @@ enum class DeviceTypeEnumType {
 	Inverter,
 	ChargingStation,
 };
+bool convertToJson(const DeviceTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DeviceTypeEnumType &dst);
+
 enum class EntityTypeEnumType {
 	Battery,
 	Compressor,
@@ -591,6 +657,9 @@ enum class EntityTypeEnumType {
 	GridGuard,
 	ControllableSystem,
 };
+bool convertToJson(const EntityTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, EntityTypeEnumType &dst);
+
 enum class FeatureTypeEnumType {
 	ActuatorLevel,
 	ActuatorSwitch,
@@ -625,14 +694,23 @@ enum class FeatureTypeEnumType {
 	Identification,
 	StateInformation,
 };
+bool convertToJson(const FeatureTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureTypeEnumType &dst);
+
 enum class FeatureDirectControlSpecificUsageEnumType {
 	History,
 	RealTime,
 };
+bool convertToJson(const FeatureDirectControlSpecificUsageEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureDirectControlSpecificUsageEnumType &dst);
+
 enum class FeatureHvacSpecificUsageEnumType {
 	OperationMode,
 	Overrun,
 };
+bool convertToJson(const FeatureHvacSpecificUsageEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureHvacSpecificUsageEnumType &dst);
+
 enum class FeatureMeasurementSpecificUsageEnumType {
 	Contact,
 	Electrical,
@@ -641,6 +719,9 @@ enum class FeatureMeasurementSpecificUsageEnumType {
 	Pressure,
 	Temperature,
 };
+bool convertToJson(const FeatureMeasurementSpecificUsageEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureMeasurementSpecificUsageEnumType &dst);
+
 enum class FeatureSetpointSpecificUsageEnumType {
 	Contact,
 	Electrical,
@@ -649,12 +730,18 @@ enum class FeatureSetpointSpecificUsageEnumType {
 	Pressure,
 	Temperature,
 };
+bool convertToJson(const FeatureSetpointSpecificUsageEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureSetpointSpecificUsageEnumType &dst);
+
 enum class FeatureSmartEnergyManagementPsSpecificUsageEnumType {
 	FixedForecast,
 	FlexibleChosenForecast,
 	FlexibleOptionalForecast,
 	OptionalSequenceBasedImmediateControl,
 };
+bool convertToJson(const FeatureSmartEnergyManagementPsSpecificUsageEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FeatureSmartEnergyManagementPsSpecificUsageEnumType &dst);
+
 enum class FunctionEnumType {
 	actuatorLevelData,
 	actuatorLevelDescriptionData,
@@ -799,6 +886,9 @@ enum class FunctionEnumType {
 	electricalConnectionCharacteristicListData,
 	stateInformationListData,
 };
+bool convertToJson(const FunctionEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, FunctionEnumType &dst);
+
 enum class TimeSeriesTypeEnumType {
 	plan,
 	singleDemand,
@@ -808,6 +898,9 @@ enum class TimeSeriesTypeEnumType {
 	consumptionLimitCurve,
 	productionLimitCurve,
 };
+bool convertToJson(const TimeSeriesTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, TimeSeriesTypeEnumType &dst);
+
 enum class MeasurementTypeEnumType {
 	acceleration,
 	angle,
@@ -852,6 +945,9 @@ enum class MeasurementTypeEnumType {
 	volume,
 	volumetricFlow,
 };
+bool convertToJson(const MeasurementTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MeasurementTypeEnumType &dst);
+
 enum class MeasurementValueTypeEnumType {
 	value,
 	averageValue,
@@ -859,21 +955,33 @@ enum class MeasurementValueTypeEnumType {
 	maxValue,
 	standardDeviation,
 };
+bool convertToJson(const MeasurementValueTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MeasurementValueTypeEnumType &dst);
+
 enum class MeasurementValueSourceEnumType {
 	measuredValue,
 	calculatedValue,
 	empiricalValue,
 };
+bool convertToJson(const MeasurementValueSourceEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MeasurementValueSourceEnumType &dst);
+
 enum class MeasurementValueTendencyEnumType {
 	rising,
 	stable,
 	falling,
 };
+bool convertToJson(const MeasurementValueTendencyEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MeasurementValueTendencyEnumType &dst);
+
 enum class MeasurementValueStateEnumType {
 	normal,
 	outOfRange,
 	error,
 };
+bool convertToJson(const MeasurementValueStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, MeasurementValueStateEnumType &dst);
+
 enum class ThresholdTypeEnumType {
 	goodAbove,
 	badAbove,
@@ -886,11 +994,17 @@ enum class ThresholdTypeEnumType {
 	sagThreshold,
 	swellThreshold,
 };
+bool convertToJson(const ThresholdTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ThresholdTypeEnumType &dst);
+
 enum class DirectControlActivityStateEnumType {
 	running,
 	paused,
 	inactive,
 };
+bool convertToJson(const DirectControlActivityStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DirectControlActivityStateEnumType &dst);
+
 enum class PowerTimeSlotValueTypeEnumType {
 	power,
 	powerMin,
@@ -905,11 +1019,17 @@ enum class PowerTimeSlotValueTypeEnumType {
 	energyStandardDeviation,
 	energySkewness,
 };
+bool convertToJson(const PowerTimeSlotValueTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, PowerTimeSlotValueTypeEnumType &dst);
+
 enum class PowerSequenceScopeEnumType {
 	forecast,
 	measurement,
 	recommendation,
 };
+bool convertToJson(const PowerSequenceScopeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, PowerSequenceScopeEnumType &dst);
+
 enum class PowerSequenceStateEnumType {
 	running,
 	paused,
@@ -920,6 +1040,9 @@ enum class PowerSequenceStateEnumType {
 	completed,
 	invalid,
 };
+bool convertToJson(const PowerSequenceStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, PowerSequenceStateEnumType &dst);
+
 enum class ActuatorLevelFctEnumType {
 	start,
 	up,
@@ -930,6 +1053,9 @@ enum class ActuatorLevelFctEnumType {
 	absolute,
 	relative,
 };
+bool convertToJson(const ActuatorLevelFctEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ActuatorLevelFctEnumType &dst);
+
 enum class CmdClassifierType {
 	read,
 	reply,
@@ -938,23 +1064,38 @@ enum class CmdClassifierType {
 	call,
 	result,
 };
+bool convertToJson(const CmdClassifierType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, CmdClassifierType &dst);
+
 enum class ActuatorSwitchFctEnumType {
 	on,
 	off,
 	toggle,
 };
+bool convertToJson(const ActuatorSwitchFctEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ActuatorSwitchFctEnumType &dst);
+
 enum class AlarmTypeEnumType {
 	alarmCancelled,
 	underThreshold,
 	overThreshold,
 };
+bool convertToJson(const AlarmTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, AlarmTypeEnumType &dst);
+
 enum class BillTypeEnumType {
 	chargingSummary,
 };
+bool convertToJson(const BillTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, BillTypeEnumType &dst);
+
 enum class BillPositionTypeEnumType {
 	gridElectricEnergy,
 	selfProducedElectricEnergy,
 };
+bool convertToJson(const BillPositionTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, BillPositionTypeEnumType &dst);
+
 enum class BillCostTypeEnumType {
 	absolutePrice,
 	relativePrice,
@@ -962,11 +1103,17 @@ enum class BillCostTypeEnumType {
 	renewableEnergy,
 	radioactiveWaste,
 };
+bool convertToJson(const BillCostTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, BillCostTypeEnumType &dst);
+
 enum class IdentificationTypeEnumType {
 	eui48,
 	eui64,
 	userRfidTag,
 };
+bool convertToJson(const IdentificationTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, IdentificationTypeEnumType &dst);
+
 enum class PowerSourceEnumType {
 	unknown,
 	mainsSinglePhase,
@@ -974,6 +1121,9 @@ enum class PowerSourceEnumType {
 	battery,
 	dc,
 };
+bool convertToJson(const PowerSourceEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, PowerSourceEnumType &dst);
+
 enum class DeviceConfigurationKeyNameEnumType {
 	peakPowerOfPvSystem,
 	pvCurtailmentLimitFactor,
@@ -1013,6 +1163,9 @@ enum class DeviceConfigurationKeyNameEnumType {
 	incentivesTimeoutIncentiveRequest,
 	incentivesWaitIncentiveWriteable,
 };
+bool convertToJson(const DeviceConfigurationKeyNameEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DeviceConfigurationKeyNameEnumType &dst);
+
 enum class DeviceConfigurationKeyValueTypeType {
 	boolean,
 	date,
@@ -1023,6 +1176,9 @@ enum class DeviceConfigurationKeyValueTypeType {
 	scaledNumber,
 	integer,
 };
+bool convertToJson(const DeviceConfigurationKeyValueTypeType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DeviceConfigurationKeyValueTypeType &dst);
+
 enum class DeviceDiagnosisOperatingStateEnumType {
 	normalOperation,
 	standby,
@@ -1035,6 +1191,9 @@ enum class DeviceDiagnosisOperatingStateEnumType {
 	temporarilyNotReady,
 	off,
 };
+bool convertToJson(const DeviceDiagnosisOperatingStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, DeviceDiagnosisOperatingStateEnumType &dst);
+
 enum class PowerSupplyConditionEnumType {
 	good,
 	low,
@@ -1042,6 +1201,9 @@ enum class PowerSupplyConditionEnumType {
 	unknown,
 	error,
 };
+bool convertToJson(const PowerSupplyConditionEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, PowerSupplyConditionEnumType &dst);
+
 enum class ElectricalConnectionMeasurandVariantEnumType {
 	amplitude,
 	rms,
@@ -1049,16 +1211,25 @@ enum class ElectricalConnectionMeasurandVariantEnumType {
 	angle,
 	cosPhi,
 };
+bool convertToJson(const ElectricalConnectionMeasurandVariantEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionMeasurandVariantEnumType &dst);
+
 enum class ElectricalConnectionVoltageTypeEnumType {
 	ac,
 	dc,
 };
+bool convertToJson(const ElectricalConnectionVoltageTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionVoltageTypeEnumType &dst);
+
 enum class ElectricalConnectionAcMeasurementTypeEnumType {
 	real,
 	reactive,
 	apparent,
 	phase,
 };
+bool convertToJson(const ElectricalConnectionAcMeasurementTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionAcMeasurementTypeEnumType &dst);
+
 enum class ElectricalConnectionPhaseNameEnumType {
 	a,
 	b,
@@ -1071,6 +1242,9 @@ enum class ElectricalConnectionPhaseNameEnumType {
 	ground,
 	none,
 };
+bool convertToJson(const ElectricalConnectionPhaseNameEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionPhaseNameEnumType &dst);
+
 enum class ElectricalConnectionConnectionPointType {
 	grid,
 	home,
@@ -1078,6 +1252,9 @@ enum class ElectricalConnectionConnectionPointType {
 	sd,
 	other,
 };
+bool convertToJson(const ElectricalConnectionConnectionPointType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionConnectionPointType &dst);
+
 enum class ElectricalConnectionCharacteristicContextEnumType {
 	device,
 	entity,
@@ -1085,6 +1262,9 @@ enum class ElectricalConnectionCharacteristicContextEnumType {
 	pvString,
 	battery,
 };
+bool convertToJson(const ElectricalConnectionCharacteristicContextEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionCharacteristicContextEnumType &dst);
+
 enum class ElectricalConnectionCharacteristicTypeEnumType {
 	powerConsumptionMin,
 	powerConsumptionMax,
@@ -1100,18 +1280,27 @@ enum class ElectricalConnectionCharacteristicTypeEnumType {
 	apparentPowerProductionNominalMax,
 	apparentPowerConsumptionNominalMax,
 };
+bool convertToJson(const ElectricalConnectionCharacteristicTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, ElectricalConnectionCharacteristicTypeEnumType &dst);
+
 enum class HvacSystemFunctionTypeEnumType {
 	heating,
 	cooling,
 	ventilation,
 	dhw,
 };
+bool convertToJson(const HvacSystemFunctionTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, HvacSystemFunctionTypeEnumType &dst);
+
 enum class HvacOperationModeTypeEnumType {
 	auto,
 	on,
 	off,
 	eco,
 };
+bool convertToJson(const HvacOperationModeTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, HvacOperationModeTypeEnumType &dst);
+
 enum class HvacOverrunTypeEnumType {
 	oneTimeDhw,
 	party,
@@ -1124,42 +1313,66 @@ enum class HvacOverrunTypeEnumType {
 	hvacSystemOff,
 	valveKick,
 };
+bool convertToJson(const HvacOverrunTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, HvacOverrunTypeEnumType &dst);
+
 enum class HvacOverrunStatusEnumType {
 	active,
 	running,
 	finished,
 	inactive,
 };
+bool convertToJson(const HvacOverrunStatusEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, HvacOverrunStatusEnumType &dst);
+
 enum class SetpointTypeEnumType {
 	valueAbsolute,
 	valueRelative,
 };
+bool convertToJson(const SetpointTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, SetpointTypeEnumType &dst);
+
 enum class TimeSlotTimeModeEnumType {
 	absolute,
 	recurring,
 	both,
 };
+bool convertToJson(const TimeSlotTimeModeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, TimeSlotTimeModeEnumType &dst);
+
 enum class TierBoundaryTypeEnumType {
 	powerBoundary,
 	energyBoundary,
 	countBoundary,
 };
+bool convertToJson(const TierBoundaryTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, TierBoundaryTypeEnumType &dst);
+
 enum class TierTypeEnumType {
 	fixedCost,
 	dynamicCost,
 };
+bool convertToJson(const TierTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, TierTypeEnumType &dst);
+
 enum class IncentiveTypeEnumType {
 	absoluteCost,
 	relativeCost,
 	renewableEnergyPercentage,
 	co2Emission,
 };
+bool convertToJson(const IncentiveTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, IncentiveTypeEnumType &dst);
+
 enum class IncentiveValueTypeEnumType {
 	value,
 	averageValue,
 	minValue,
 	maxValue,
 };
+bool convertToJson(const IncentiveValueTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, IncentiveValueTypeEnumType &dst);
+
 enum class LoadControlEventActionEnumType {
 	pause,
 	resume,
@@ -1168,6 +1381,9 @@ enum class LoadControlEventActionEnumType {
 	emergency,
 	normal,
 };
+bool convertToJson(const LoadControlEventActionEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, LoadControlEventActionEnumType &dst);
+
 enum class LoadControlEventStateEnumType {
 	eventAccepted,
 	eventStarted,
@@ -1176,32 +1392,50 @@ enum class LoadControlEventStateEnumType {
 	eventCancelled,
 	eventError,
 };
+bool convertToJson(const LoadControlEventStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, LoadControlEventStateEnumType &dst);
+
 enum class LoadControlLimitTypeEnumType {
 	minValueLimit,
 	maxValueLimit,
 	signDependentAbsValueLimit,
 };
+bool convertToJson(const LoadControlLimitTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, LoadControlLimitTypeEnumType &dst);
+
 enum class LoadControlCategoryEnumType {
 	obligation,
 	recommendation,
 	optimization,
 };
+bool convertToJson(const LoadControlCategoryEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, LoadControlCategoryEnumType &dst);
+
 enum class NetworkManagementFeatureSetType {
 	gateway,
 	router,
 	smart,
 	simple,
 };
+bool convertToJson(const NetworkManagementFeatureSetType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, NetworkManagementFeatureSetType &dst);
+
 enum class NetworkManagementProcessStateStateType {
 	succeeded,
 	failed,
 	aborted,
 };
+bool convertToJson(const NetworkManagementProcessStateStateType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, NetworkManagementProcessStateStateType &dst);
+
 enum class NetworkManagementStateChangeType {
 	added,
 	removed,
 	modified,
 };
+bool convertToJson(const NetworkManagementStateChangeType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, NetworkManagementStateChangeType &dst);
+
 enum class SensingStateEnumType {
 	on,
 	off,
@@ -1240,6 +1474,9 @@ enum class SensingStateEnumType {
 	alarmed,
 	notAlarmed,
 };
+bool convertToJson(const SensingStateEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, SensingStateEnumType &dst);
+
 enum class SensingTypeEnumType {
 	switch,
 	button,
@@ -1258,6 +1495,9 @@ enum class SensingTypeEnumType {
 	powerAlarmSensor,
 	dayNightIndicator,
 };
+bool convertToJson(const SensingTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, SensingTypeEnumType &dst);
+
 enum class StateInformationFunctionalityEnumType {
 	externalOverrideFromGrid,
 	autonomousGridSupport,
@@ -1273,6 +1513,9 @@ enum class StateInformationFunctionalityEnumType {
 	shuttingDown,
 	manualShutdown,
 };
+bool convertToJson(const StateInformationFunctionalityEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, StateInformationFunctionalityEnumType &dst);
+
 enum class StateInformationFailureEnumType {
 	inverterDefective,
 	batteryOvercurrentProtection,
@@ -1293,10 +1536,16 @@ enum class StateInformationFailureEnumType {
 	hardwareTestFailure,
 	genericInternalError,
 };
+bool convertToJson(const StateInformationFailureEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, StateInformationFailureEnumType &dst);
+
 enum class StateInformationCategoryEnumType {
 	functionality,
 	failure,
 };
+bool convertToJson(const StateInformationCategoryEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, StateInformationCategoryEnumType &dst);
+
 enum class SupplyConditionEventTypeEnumType {
 	thesholdExceeded,
 	fallenBelowThreshold,
@@ -1305,6 +1554,9 @@ enum class SupplyConditionEventTypeEnumType {
 	otherProblem,
 	gridConditionUpdate,
 };
+bool convertToJson(const SupplyConditionEventTypeEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, SupplyConditionEventTypeEnumType &dst);
+
 enum class SupplyConditionOriginatorEnumType {
 	externDSO,
 	externSupplier,
@@ -1312,6 +1564,9 @@ enum class SupplyConditionOriginatorEnumType {
 	internalService,
 	internalUser,
 };
+bool convertToJson(const SupplyConditionOriginatorEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, SupplyConditionOriginatorEnumType &dst);
+
 enum class GridConditionEnumType {
 	consumptionRed,
 	consumptionYellow,
@@ -1319,77 +1574,83 @@ enum class GridConditionEnumType {
 	productionYellow,
 	productionRed,
 };
+bool convertToJson(const GridConditionEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, GridConditionEnumType &dst);
+
 enum class TaskManagementJobSourceEnumType {
 	internalMechanism,
 	userInteraction,
 	externalConfiguration,
 };
+bool convertToJson(const TaskManagementJobSourceEnumType &src, JsonVariant& dst);
+void convertFromJson(const JsonVariantConst& src, TaskManagementJobSourceEnumType &dst);
+
 struct MessagingTypeType {
-	MessagingTypeEnumType messagingtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MessagingTypeEnumType> messagingtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct AbsoluteOrRelativeTimeType {
-	uint64_t duration;
-	uint64_t dateTime;
+	std::optional<uint64_t> duration;
+	std::optional<uint64_t> dateTime;
 };
 struct RecurringIntervalType {
-	RecurringIntervalEnumType recurringintervalenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<RecurringIntervalEnumType> recurringintervalenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct OccurrenceType {
-	OccurrenceEnumType occurrenceenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<OccurrenceEnumType> occurrenceenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct CommodityTypeType {
-	CommodityTypeEnumType commoditytypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<CommodityTypeEnumType> commoditytypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct EnergyDirectionType {
-	EnergyDirectionEnumType energydirectionenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<EnergyDirectionEnumType> energydirectionenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct EnergyModeType {
-	EnergyModeEnumType energymodeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<EnergyModeEnumType> energymodeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct UnitOfMeasurementType {
-	UnitOfMeasurementEnumType unitofmeasurementenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<UnitOfMeasurementEnumType> unitofmeasurementenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct CurrencyType {
-	CurrencyEnumType currencyenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<CurrencyEnumType> currencyenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ScopeTypeType {
-	ScopeTypeEnumType scopetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ScopeTypeEnumType> scopetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct DeviceTypeType {
-	DeviceTypeEnumType devicetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<DeviceTypeEnumType> devicetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct EntityTypeType {
-	EntityTypeEnumType entitytypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<EntityTypeEnumType> entitytypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct FeatureTypeType {
-	FeatureTypeEnumType featuretypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<FeatureTypeEnumType> featuretypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct FeatureSpecificUsageType {
-	std::string FeatureSpecificUsageEnumType;
-	EnumExtendType enumextendtype;
+	std::optional<std::string> FeatureSpecificUsageEnumType;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct FeatureSpecificUsageEnumType {
-	FeatureDirectControlSpecificUsageEnumType featuredirectcontrolspecificusageenumtype;
-	FeatureHvacSpecificUsageEnumType featurehvacspecificusageenumtype;
-	FeatureMeasurementSpecificUsageEnumType featuremeasurementspecificusageenumtype;
-	FeatureSetpointSpecificUsageEnumType featuresetpointspecificusageenumtype;
-	FeatureSmartEnergyManagementPsSpecificUsageEnumType featuresmartenergymanagementpsspecificusageenumtype;
+	std::optional<FeatureDirectControlSpecificUsageEnumType> featuredirectcontrolspecificusageenumtype;
+	std::optional<FeatureHvacSpecificUsageEnumType> featurehvacspecificusageenumtype;
+	std::optional<FeatureMeasurementSpecificUsageEnumType> featuremeasurementspecificusageenumtype;
+	std::optional<FeatureSetpointSpecificUsageEnumType> featuresetpointspecificusageenumtype;
+	std::optional<FeatureSmartEnergyManagementPsSpecificUsageEnumType> featuresmartenergymanagementpsspecificusageenumtype;
 };
 struct FunctionType {
-	FunctionEnumType functionenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<FunctionEnumType> functionenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MessagingDataType {
 	std::optional<AbsoluteOrRelativeTimeType> timestamp ;
@@ -1498,29 +1759,31 @@ struct DeviceAddressElementsType {
 	std::optional<ElementTagType> device ;
 };
 struct EntityAddressType {
-	std::optional<>  ;
-	std::optional<>  ;
+	std::optional<AddressDeviceType> device ;
+	std::optional<std::vector<AddressEntityType>> entity ;
 };
 struct EntityAddressElementsType {
-	std::optional<>  ;
-	std::optional<>  ;
+	std::optional<ElementTagType> device ;
+	std::optional<ElementTagType> entity ;
 };
 struct FeatureAddressType {
-	std::optional<>  ;
-	std::optional<>  ;
+	std::optional<AddressDeviceType> device ;
+	std::optional<std::vector<AddressEntityType>> entity ;
+	std::optional<AddressFeatureType> feature ;
 };
 struct FeatureAddressElementsType {
-	std::optional<>  ;
-	std::optional<>  ;
+	std::optional<ElementTagType> device ;
+	std::optional<ElementTagType> entity ;
+	std::optional<ElementTagType> feature ;
 };
 struct PossibleOperationsClassifierType {
 	std::optional<ElementTagType> partial ;
 };
 struct PossibleOperationsReadType {
-	std::optional<>  ;
+	std::optional<ElementTagType> partial ;
 };
 struct PossibleOperationsWriteType {
-	std::optional<>  ;
+	std::optional<ElementTagType> partial ;
 };
 struct PossibleOperationsType {
 	std::optional<PossibleOperationsReadType> read ;
@@ -1539,32 +1802,32 @@ struct FunctionPropertyElementsType {
 	std::optional<PossibleOperationsElementsType> possibleOperations ;
 };
 struct TimeSeriesTypeType {
-	TimeSeriesTypeEnumType timeseriestypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<TimeSeriesTypeEnumType> timeseriestypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MeasurementTypeType {
-	MeasurementTypeEnumType measurementtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MeasurementTypeEnumType> measurementtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MeasurementValueTypeType {
-	MeasurementValueTypeEnumType measurementvaluetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MeasurementValueTypeEnumType> measurementvaluetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MeasurementValueSourceType {
-	MeasurementValueSourceEnumType measurementvaluesourceenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MeasurementValueSourceEnumType> measurementvaluesourceenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MeasurementValueTendencyType {
-	MeasurementValueTendencyEnumType measurementvaluetendencyenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MeasurementValueTendencyEnumType> measurementvaluetendencyenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct MeasurementValueStateType {
-	MeasurementValueStateEnumType measurementvaluestateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<MeasurementValueStateEnumType> measurementvaluestateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ThresholdTypeType {
-	ThresholdTypeEnumType thresholdtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ThresholdTypeEnumType> thresholdtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TimeSeriesSlotType {
 	std::optional<TimeSeriesSlotIdType> timeSeriesSlotId ;
@@ -1840,20 +2103,20 @@ struct ThresholdDescriptionListDataSelectorsType {
 	std::optional<ScopeTypeType> scopeType ;
 };
 struct DirectControlActivityStateType {
-	DirectControlActivityStateEnumType directcontrolactivitystateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<DirectControlActivityStateEnumType> directcontrolactivitystateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct PowerTimeSlotValueTypeType {
-	PowerTimeSlotValueTypeEnumType powertimeslotvaluetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<PowerTimeSlotValueTypeEnumType> powertimeslotvaluetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct PowerSequenceScopeType {
-	PowerSequenceScopeEnumType powersequencescopeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<PowerSequenceScopeEnumType> powersequencescopeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct PowerSequenceStateType {
-	PowerSequenceStateEnumType powersequencestateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<PowerSequenceStateEnumType> powersequencestateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct DirectControlActivityDataType {
 	std::optional<AbsoluteOrRelativeTimeType> timestamp ;
@@ -2182,8 +2445,8 @@ struct BindingManagementDeleteCallElementsType {
 	std::optional<FeatureAddressElementsType> serverAddress ;
 };
 struct ActuatorLevelFctType {
-	ActuatorLevelFctEnumType actuatorlevelfctenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ActuatorLevelFctEnumType> actuatorlevelfctenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ActuatorLevelDataType {
 	std::optional<ActuatorLevelFctType> function ;
@@ -2204,185 +2467,179 @@ struct ActuatorLevelDescriptionDataElementsType {
 	std::optional<ElementTagType> levelDefaultUnit ;
 };
 struct ActuatorSwitchFctType {
-	ActuatorSwitchFctEnumType actuatorswitchfctenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ActuatorSwitchFctEnumType> actuatorswitchfctenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct AlarmTypeType {
-	AlarmTypeEnumType alarmtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<AlarmTypeEnumType> alarmtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct BillTypeType {
-	BillTypeEnumType billtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<BillTypeEnumType> billtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct BillPositionTypeType {
-	BillPositionTypeEnumType billpositiontypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<BillPositionTypeEnumType> billpositiontypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct BillCostTypeType {
-	BillCostTypeEnumType billcosttypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<BillCostTypeEnumType> billcosttypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct IdentificationTypeType {
-	IdentificationTypeEnumType identificationtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<IdentificationTypeEnumType> identificationtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct PowerSourceType {
-	PowerSourceEnumType powersourceenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<PowerSourceEnumType> powersourceenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct DeviceConfigurationKeyNameType {
-	DeviceConfigurationKeyNameEnumType deviceconfigurationkeynameenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<DeviceConfigurationKeyNameEnumType> deviceconfigurationkeynameenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct DeviceDiagnosisOperatingStateType {
-	DeviceDiagnosisOperatingStateEnumType devicediagnosisoperatingstateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<DeviceDiagnosisOperatingStateEnumType> devicediagnosisoperatingstateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct PowerSupplyConditionType {
-	PowerSupplyConditionEnumType powersupplyconditionenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<PowerSupplyConditionEnumType> powersupplyconditionenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionMeasurandVariantType {
-	ElectricalConnectionMeasurandVariantEnumType electricalconnectionmeasurandvariantenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionMeasurandVariantEnumType> electricalconnectionmeasurandvariantenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionVoltageTypeType {
-	ElectricalConnectionVoltageTypeEnumType electricalconnectionvoltagetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionVoltageTypeEnumType> electricalconnectionvoltagetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionAcMeasurementTypeType {
-	ElectricalConnectionAcMeasurementTypeEnumType electricalconnectionacmeasurementtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionAcMeasurementTypeEnumType> electricalconnectionacmeasurementtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionPhaseNameType {
-	ElectricalConnectionPhaseNameEnumType electricalconnectionphasenameenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionPhaseNameEnumType> electricalconnectionphasenameenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionCharacteristicContextType {
-	ElectricalConnectionCharacteristicContextEnumType electricalconnectioncharacteristiccontextenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionCharacteristicContextEnumType> electricalconnectioncharacteristiccontextenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct ElectricalConnectionCharacteristicTypeType {
-	ElectricalConnectionCharacteristicTypeEnumType electricalconnectioncharacteristictypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<ElectricalConnectionCharacteristicTypeEnumType> electricalconnectioncharacteristictypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct HvacSystemFunctionTypeType {
-	HvacSystemFunctionTypeEnumType hvacsystemfunctiontypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<HvacSystemFunctionTypeEnumType> hvacsystemfunctiontypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct HvacOperationModeTypeType {
-	HvacOperationModeTypeEnumType hvacoperationmodetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<HvacOperationModeTypeEnumType> hvacoperationmodetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct HvacOverrunTypeType {
-	HvacOverrunTypeEnumType hvacoverruntypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<HvacOverrunTypeEnumType> hvacoverruntypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct HvacOverrunStatusType {
-	HvacOverrunStatusEnumType hvacoverrunstatusenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<HvacOverrunStatusEnumType> hvacoverrunstatusenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct SetpointTypeType {
-	SetpointTypeEnumType setpointtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<SetpointTypeEnumType> setpointtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TimeSlotTimeModeType {
-	TimeSlotTimeModeEnumType timeslottimemodeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<TimeSlotTimeModeEnumType> timeslottimemodeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TierBoundaryTypeType {
-	TierBoundaryTypeEnumType tierboundarytypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<TierBoundaryTypeEnumType> tierboundarytypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TierTypeType {
-	TierTypeEnumType tiertypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<TierTypeEnumType> tiertypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct IncentiveTypeType {
-	IncentiveTypeEnumType incentivetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<IncentiveTypeEnumType> incentivetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct IncentiveValueTypeType {
-	IncentiveValueTypeEnumType incentivevaluetypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<IncentiveValueTypeEnumType> incentivevaluetypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct LoadControlEventActionType {
-	LoadControlEventActionEnumType loadcontroleventactionenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<LoadControlEventActionEnumType> loadcontroleventactionenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct LoadControlEventStateType {
-	LoadControlEventStateEnumType loadcontroleventstateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<LoadControlEventStateEnumType> loadcontroleventstateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct LoadControlLimitTypeType {
-	LoadControlLimitTypeEnumType loadcontrollimittypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<LoadControlLimitTypeEnumType> loadcontrollimittypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct LoadControlCategoryType {
-	LoadControlCategoryEnumType loadcontrolcategoryenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<LoadControlCategoryEnumType> loadcontrolcategoryenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct UseCaseActorType {
-	UseCaseActorEnumType usecaseactorenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<UseCaseActorEnumType> usecaseactorenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct UseCaseNameType {
-	UseCaseNameEnumType usecasenameenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<UseCaseNameEnumType> usecasenameenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct SensingStateType {
-	SensingStateEnumType sensingstateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<SensingStateEnumType> sensingstateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct SensingTypeType {
-	SensingTypeEnumType sensingtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<SensingTypeEnumType> sensingtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct StateInformationType {
-	StateInformationFunctionalityEnumType stateinformationfunctionalityenumtype;
-	StateInformationFailureEnumType stateinformationfailureenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<StateInformationFunctionalityEnumType> stateinformationfunctionalityenumtype;
+	std::optional<StateInformationFailureEnumType> stateinformationfailureenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct StateInformationCategoryType {
-	StateInformationCategoryEnumType stateinformationcategoryenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<StateInformationCategoryEnumType> stateinformationcategoryenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct SupplyConditionEventTypeType {
-	SupplyConditionEventTypeEnumType supplyconditioneventtypeenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<SupplyConditionEventTypeEnumType> supplyconditioneventtypeenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct SupplyConditionOriginatorType {
-	SupplyConditionOriginatorEnumType supplyconditionoriginatorenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<SupplyConditionOriginatorEnumType> supplyconditionoriginatorenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct GridConditionType {
-	GridConditionEnumType gridconditionenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<GridConditionEnumType> gridconditionenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TaskManagementJobStateType {
-	DirectControlActivityStateEnumType directcontrolactivitystateenumtype;
-	HvacOverrunStatusEnumType hvacoverrunstatusenumtype;
-	LoadControlEventStateEnumType loadcontroleventstateenumtype;
-	PowerSequenceStateEnumType powersequencestateenumtype;
-	EnumExtendType enumextendtype;
+	std::optional<DirectControlActivityStateEnumType> directcontrolactivitystateenumtype;
+	std::optional<HvacOverrunStatusEnumType> hvacoverrunstatusenumtype;
+	std::optional<LoadControlEventStateEnumType> loadcontroleventstateenumtype;
+	std::optional<PowerSequenceStateEnumType> powersequencestateenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct TaskManagementJobSourceType {
-	TaskManagementJobSourceEnumType taskmanagementjobsourceenumtype;
-	EnumExtendType enumextendtype;
-};
-struct FilterType {
-	std::optional<FilterIdType> filterId ;
-	std::optional<CmdControlType> cmdControl ;
-	std::optional<>  ;
-	std::optional<>  ;
+	std::optional<TaskManagementJobSourceEnumType> taskmanagementjobsourceenumtype;
+	std::optional<EnumExtendType> enumextendtype;
 };
 struct CmdControlType {
 	std::optional<ElementTagType> delete ;
 	std::optional<ElementTagType> partial ;
 };
 struct CmdType {
-	std::optional<>  ;
+	std::optional<PayloadContributionGroup> PayloadContributionGroup ;
 };
 struct ActuatorSwitchDataType {
 	std::optional<ActuatorSwitchFctType> function ;
