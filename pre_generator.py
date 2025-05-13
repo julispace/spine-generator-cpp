@@ -101,7 +101,9 @@ def remove_namespace(name):
 def to_cpp_datatype(type_name):
     #type_name = str(type_name.__name__)
     if hasattr(type_name, "__name__"):
-        type_name = str(type_name.__name__)
+        type_name_str = str(type_name.__name__)
+    else:
+        type_name_str = type_name
     type_mapping = {
         "string": "std::string",
         "str": "std::string",
@@ -123,7 +125,7 @@ def to_cpp_datatype(type_name):
     }
     #if type_name not in type_mapping:
     #       print("Unknown datatype:", type_name)
-    return type_mapping.get(type_name.lower(), type_name)
+    return type_mapping.get(type_name_str.lower(), type_name)
 
 def remove_duplicate_objects(spine_types: list[Spine_type]):
     seen = set()
@@ -138,26 +140,26 @@ def sort_and_resolve_dependencies(spine_types: list[Spine_type]):
     type_order = {"define": 0, "using": 1, "enum": 2, "struct": 3, "class": 4}
 
     # Erstelle eine Abhängigkeits-Map
-    dependency_map = {datatype.name: datatype.depends_on for datatype in cpp_datatypes}
+    dependency_map = {datatype_l.name: datatype_l.depends_on for datatype_l in cpp_datatypes}
 
     # Topologische Sortierung
     sorted_datatypes = []
     visited = set()
 
-    def visit(datatype):
-        if datatype.name in visited:
+    def visit(datatype_v):
+        if datatype_v.name in visited:
             return
-        visited.add(datatype.name)
-        for dependency in dependency_map.get(datatype.name, []):
+        visited.add(datatype_v.name)
+        for dependency in dependency_map.get(datatype_v.name, []):
             dependent_datatype = next((d for d in cpp_datatypes if d.name == dependency), None)
             if dependent_datatype:
                 visit(dependent_datatype)
-        sorted_datatypes.append(datatype)
+        sorted_datatypes.append(datatype_v)
 
     # Sortiere zuerst nach `type_order`, dann nach Abhängigkeiten
     cpp_datatypes.sort(key=lambda x: type_order.get(x.type_name, 5))
-    for datatype in cpp_datatypes:
-        visit(datatype)
+    for datatype_l in cpp_datatypes:
+        visit(datatype_l)
 
     return sorted_datatypes
 
@@ -173,11 +175,16 @@ def make_variable_name(name: str):
 def process_complex_type(complex_type):
     global unprocessed_elements
     struct_type_name = remove_namespace(complex_type.name)
+    #we dont generate cmdtype and datagramtype. They are added manually
+    if struct_type_name == "CmdType" or struct_type_name == "DatagramType" or struct_type_name == "PayloadType":
+        return
+
+
     new_type = Spine_type("struct", struct_type_name, "")
     if hasattr(complex_type.content, "content_type_label") and complex_type.content.content_type_label == "simple":
-        print("complex type is actually simple: " + struct_type_name)
-        #todo handle these
-        unprocessed_elements += 1
+        new_type = Spine_type("using", remove_namespace(complex_type.name), "")
+        new_type.code = "using " + remove_namespace(complex_type.name) + " = " + to_cpp_datatype(complex_type.base_type.python_type) + ";\n"
+        cpp_datatypes.append(new_type)
         return
     elif complex_type.content.model == "sequence":
         sequence_size = len(complex_type.content)
@@ -210,6 +217,9 @@ def process_complex_type(complex_type):
                         unprocessed_elements += 1
                         return
                 else:
+                    if struct_type_name == "FilterType":
+                        #We dont care about the filtertype. Its done manually
+                        return
                     print("unprocessed element: " + struct_type_name + " has model type but is not sequence")
                     unprocessed_elements +=1
                     return
@@ -226,6 +236,8 @@ def process_complex_type(complex_type):
                 element = [variable_type, variable_name, is_vec]
                 elements.append(element)
         for variable_type, variable_name, is_vec  in elements:
+            if variable_type == to_cpp_datatype(variable_type):
+                new_type.depends_on.append(variable_type)
             variable_type = to_cpp_datatype(variable_type)
             variable_name_string = variable_name
             variable_name_cpp = make_variable_name(variable_name)
@@ -233,8 +245,6 @@ def process_complex_type(complex_type):
             # Handle edgecases
             if variable_type == "SpecificationVersionDataType": # This is some weird edgecase
                 variable_type = "SpecificationVersionType"
-            if variable_type == "CmdType": #we dont do cmdtype
-                return
 
             # Done
             if is_vec:
@@ -244,9 +254,12 @@ def process_complex_type(complex_type):
                 print("Variable type is None while making complex type")
                 unprocessed_elements += 1
                 return
-            # TODO: json parsers
             new_type.to_json_code += f"""\tif (src.{variable_name_cpp}) {{\n\t\tobj["{variable_name_string}"] = *src.{variable_name_cpp};\n\t}}\n"""
             new_type.from_json_code += f"""\tif (obj.containsKey("{variable_name_string}")) {{\n\t\tdst.{variable_name_cpp} = obj["{variable_name_string}"].as<decltype(dst.{variable_name_cpp})::value_type>();\n\t}} else {{\n\t\tdst.{variable_name_cpp} = std::nullopt;\n\t}}\n"""
+        if len(elements) < 1:
+            new_type.to_json_code = f"""bool convertToJson(const {struct_type_name} &src, JsonVariant& dst) {{\n"""
+            new_type.from_json_code = f"""void convertFromJson(const JsonVariantConst& src, {struct_type_name} &dst) {{\n"""
+
         new_type.code += "};\n"
         new_type.code += f"""bool convertToJson(const {struct_type_name} &src, JsonVariant& dst);\n"""
         new_type.code += f"""void convertFromJson(const JsonVariantConst& src, {struct_type_name} &dst);\n\n"""
@@ -298,6 +311,7 @@ def process_schema(xml_schema):
             # Using
             elif hasattr(simple_type, 'base_type'):
                 new_type = Spine_type("using", remove_namespace(simple_type.name), "")
+
                 new_type.code = "using " + remove_namespace(simple_type.name) + " = " + to_cpp_datatype(simple_type.base_type.python_type) + ";\n"
                 found_restriction = False
                 if simple_type.base_type.max_value is not None:
@@ -318,7 +332,7 @@ def process_schema(xml_schema):
                 pass
             else:
                 unprocessed_elements += 1
-                print("simple type: " + simple_type.name + " has restriction but no enumeration")
+                print("simple type: " + simple_type.name + " has restriction but no enumeration. Not sure what to do with this")
         else:
             # else its a struct
             # TODO: this is making structs in some cases where it should be making a using type (example: messagingtypetype)
@@ -347,7 +361,8 @@ def process_schema(xml_schema):
                     new_type.code += "\tstd::optional<" + member_type_name + "> " + member_variable_cpp + ";\n"
                     new_type.to_json_code += f"""\tif (src.{member_variable_cpp}) {{\n\t\tobj["{member_variable_name}"] = *src.{member_variable_cpp};\n\t}}\n"""
                     new_type.from_json_code += f"""\tif (obj.containsKey("{member_variable_name}")) {{\n\t\tdst.{member_variable_cpp} = obj["{member_variable_name}"].as<decltype(dst.{member_variable_cpp})::value_type>();\n\t}} else {{\n\t\tdst.{member_variable_cpp} = std::nullopt;\n\t}}\n"""
-
+                if len(simple_type.member_types) < 1:
+                    print("Empty complex type: " + struct_type_name)
                 new_type.code += "};\n"
 
                 new_type.to_json_code += "\n\treturn true;\n};\n"
@@ -386,14 +401,15 @@ print("Elements Before: ", len(cpp_datatypes))
 cpp_datatypes = remove_duplicate_objects(cpp_datatypes)
 cpp_datatypes = sort_and_resolve_dependencies(cpp_datatypes)
 print("Elements After: ", len(cpp_datatypes))
+print("Writing code to files...")
 with open("spine_types.h", "w")as h, open("spine_types.cpp", "w") as cpp:
     h.write(cpp_header_header)
     cpp.write(cpp_implementation_header)
     #include "config.h"
     # Forward declaration
-    for data in cpp_datatypes:
-        if data.type_name == "struct":
-            h.write(f"{data.type_name} {data.name};\n")
+    #for data in cpp_datatypes:
+    #    if data.type_name == "struct":
+    #        h.write(f"{data.type_name} {data.name};\n")
     h.write("\n\n\n\n")
     for datatype in cpp_datatypes:
         h.write(datatype.code)
